@@ -16,4 +16,8 @@ public class Util {
         }
         return paramUrl;
     }
+
+    public static void invokeMethod(String className) {
+        
+    }
 }

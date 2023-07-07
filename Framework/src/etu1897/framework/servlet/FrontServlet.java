@@ -5,6 +5,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import helper_classes.*;
 import etu1897.framework.Mapping;
+import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.*;
 
 public class FrontServlet extends HttpServlet {
@@ -44,6 +46,30 @@ public class FrontServlet extends HttpServlet {
         out.println("URL : "+url);
         out.println("MAPPING :"+this.MappingUrls.toString());
         out.println("Parameter url : "+parameter_url);
+        HashMap<String, Mapping> hashMap = this.MappingUrls;
+        Mapping mapping = hashMap.get(parameter_url);
+        if (mapping != null) {
+            out.println("Value of "+parameter_url+": ");
+            out.println("\t ClassName : "+mapping.getClassName());
+            out.println("\t Method : "+mapping.getMethod());
+            try {
+                Class<?> cls = Class.forName(mapping.getClassName());
+                Object value = cls.getMethod(mapping.getMethod()).invoke( null);
+                out.print("test");
+                if (value instanceof Modelview) {
+                    Modelview view = (Modelview) value;
+                    req.getRequestDispatcher(view.getView()).forward(req, res);
+                }
+                /*if (value instanceof Modelview) {
+                    Modelview myview = (Modelview) value;
+                    req.getRequestDispatcher(myview.getView()).forward(req,res);
+                }*/
+            } catch (Exception e) {
+                throw new ServletException(e);
+            }
+        } else {
+            out.println("The url `"+parameter_url+"` is not defined");
+        }
     }
     
 }

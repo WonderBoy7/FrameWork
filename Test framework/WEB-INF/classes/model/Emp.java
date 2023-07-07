@@ -1,6 +1,7 @@
 package model;
 
 import annotation.*;
+import helper_classes.Modelview;
 
 @Model(table = "test")
 public class Emp {
@@ -14,26 +15,28 @@ public class Emp {
     }
 
     @Url(value = "getEmp")
-    public void sayHello() {
+    public static Modelview sayHello() {
         System.out.println("hello world !!");
+        Modelview test = new Modelview("Hello.jsp");
+        return test;
     }
 
-    @Url(value = "getEmp/id")
+    @Url(value = "getid")
     public int getId() {
         return id;
     }
 
-    @Url(value = "setEmp/id")
+    @Url(value = "setid")
     public void setId(int id) {
         this.id = id;
     }
 
-    @Url(value = "getEmp/name")
+    @Url(value = "getEmpName")
     public String getname() {
         return name;
     }
 
-    @Url(value = "setEmp/name")
+    @Url(value = "setEmpName")
     public void setname(String name) {
         this.name = name;
     }
