@@ -4,7 +4,7 @@ import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import helper_classes.*;
-import etu1897.framework.Mapping;
+import etu1897.framework.*;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
@@ -58,6 +58,10 @@ public class FrontServlet extends HttpServlet {
                 out.print("test");
                 if (value instanceof Modelview) {
                     Modelview view = (Modelview) value;
+                    HashMap<String, Object> datas = view.getDatas();
+                    for (String key : datas.keySet()) {
+                        req.setAttribute(key, datas.get(key));
+                    }
                     req.getRequestDispatcher(view.getView()).forward(req, res);
                 }
                 /*if (value instanceof Modelview) {
