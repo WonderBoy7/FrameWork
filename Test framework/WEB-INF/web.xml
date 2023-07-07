@@ -11,6 +11,6 @@ version="2.4">
     </servlet>
     <servlet-mapping>
         <servlet-name>Process</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>*.do</url-pattern>
     </servlet-mapping>
 </web-app>

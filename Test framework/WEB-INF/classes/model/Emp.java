@@ -22,7 +22,7 @@ public class Emp {
     }
 
 
-    @Url(value = "getEmp")
+    @Url(value = "getEmp.do")
     public static Modelview findAll() {
         System.out.println("hello world !!");
         Modelview mv = new Modelview("Hello.jsp");
@@ -33,24 +33,28 @@ public class Emp {
         mv.addItem("list", liste);
         return mv;
     }
+    @Url(value = "save.do")
+    public Modelview Save(){
+        Modelview mv = new Modelview("result.jsp");
+        mv.addItem("my_object", this);
+        
+        return mv;
+    }
 
-    @Url(value = "getid")
+    
     public int getId() {
         return id;
     }
 
-    @Url(value = "setid")
     public void setId(int id) {
         this.id = id;
     }
 
-    @Url(value = "getEmpName")
-    public String getname() {
+    public String getName() {
         return name;
     }
 
-    @Url(value = "setEmpName")
-    public void setname(String name) {
+    public void setName(String name) {
         this.name = name;
     }
     

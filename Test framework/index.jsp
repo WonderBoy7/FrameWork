@@ -1,10 +1,3 @@
-<%@ page import="java.util.*,model.*" contentType="text/html; charset=UTF-8"%>
-<%
-    List<Emp> liste = (List<Emp>) request.getAttribute("list");
-    for (Emp emp : liste) {
-        out.print(emp.getName()+"<br>");  
-    }
-%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,8 +7,11 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="" method="post">
-        
+    <form action="save.do" method="post">
+        <h3>Formulaire attribut de classe</h3>
+        <input type="number" name="id" id="">
+        <input type="text" name="name" id="">
+        <input type="submit" value="Valider">
     </form>
 </body>
 </html>

@@ -43,6 +43,8 @@ public class FrontServlet extends HttpServlet {
         PrintWriter out = res.getWriter();
         String url = String.valueOf(req.getRequestURL());
         String parameter_url = Util.getParamURL(url);
+        String method = req.getMethod();
+
         out.println("URL : "+url);
         out.println("MAPPING :"+this.MappingUrls.toString());
         out.println("Parameter url : "+parameter_url);
@@ -52,16 +54,14 @@ public class FrontServlet extends HttpServlet {
             out.println("Value of "+parameter_url+": ");
             out.println("\t ClassName : "+mapping.getClassName());
             out.println("\t Method : "+mapping.getMethod());
+
             try {
                 Class<?> cls = Class.forName(mapping.getClassName());
-                Object value = cls.getMethod(mapping.getMethod()).invoke( null);
-                out.print("test");
+                Object value = Util.invokeMethod(req, mapping);
                 if (value instanceof Modelview) {
                     Modelview view = (Modelview) value;
-                    HashMap<String, Object> datas = view.getDatas();
-                    for (String key : datas.keySet()) {
-                        req.setAttribute(key, datas.get(key));
-                    }
+                    this.setDatas(req, view);
+
                     req.getRequestDispatcher(view.getView()).forward(req, res);
                 }
                 /*if (value instanceof Modelview) {
@@ -73,6 +73,13 @@ public class FrontServlet extends HttpServlet {
             }
         } else {
             out.println("The url `"+parameter_url+"` is not defined");
+        }
+    }
+
+    public void setDatas(HttpServletRequest req, Modelview view) {
+        HashMap<String, Object> datas = view.getDatas();
+        for (String key : datas.keySet()) {
+            req.setAttribute(key, datas.get(key));
         }
     }
     
