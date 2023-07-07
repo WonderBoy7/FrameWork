@@ -3,6 +3,7 @@ package helper_classes;
 import etu1897.framework.*;
 import java.util.*;
 
+import annotation.SessionConfig;
 import annotation.Url;
 import jakarta.servlet.http.*;
 
@@ -83,11 +84,27 @@ public class Util {
                 } catch (Exception e) {
                     value = null;
                 }
+            } else if(f.isAnnotationPresent(SessionConfig.class)){
+                HashMap<String, Object> session = new HashMap<>();
+                HttpSession httpSession = request.getSession();
+                ArrayList<String> attribute = Collections.list(httpSession.getAttributeNames());
+                for (String attr : attribute) {
+                    session.put(attr, httpSession.getAttribute(attr));
+                }
+                value = session;
             } else {
                 value = request.getParameter(field_name);
             }
             if(value != null) {
                 if (value.getClass().equals(FileUpload.class)) {
+                    try {
+                        obj.getClass()
+                                .getMethod("set"+Util.capitalize(field_name), f.getType())
+                                .invoke(obj, value);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                } else if (value instanceof HashMap){
                     try {
                         obj.getClass()
                                 .getMethod("set"+Util.capitalize(field_name), f.getType())

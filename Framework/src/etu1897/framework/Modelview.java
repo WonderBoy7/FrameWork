@@ -40,6 +40,10 @@ public class Modelview {
         this.session.put(key, obj);
     }
 
+    public void setAttributeSession(String key, Object obj,HashMap<String, Object> httpsession) {
+        httpsession.put(key, obj);
+    }
+
     public HashMap<String, Object> getSession() {
         return this.session;
     }

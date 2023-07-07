@@ -1,3 +1,4 @@
+<%@ page import="java.util.*,model.*" contentType="text/html; charset=UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,5 +8,15 @@
 </head>
 <body>
     <p>Welcom admin</p>
-</body>
+    <p><%out.println(request.getAttribute("message"));%></p>
+    <p>Test object sending : 
+        <%
+        if(request.getAttribute("obj") != null){
+            Test ob = (Test) request.getAttribute("obj");
+            out.print(ob.getTest());
+            out.print(ob.getNom());
+        }
+        %>
+    </p>
+</body> 
 </html>
