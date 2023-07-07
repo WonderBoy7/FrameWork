@@ -8,9 +8,9 @@
 </head>
 <body>
     <form action="save.do" method="post" enctype="multipart/form-data">
-        <input type="number" name="id" value="501">
+        <input type="number" name="id" value="1">
         <input type="text" name="name" value="Jean">
-        <input type="file" name="badge">
+        <input type="file" name="badge" id="">
         <input type="submit" value="Valider">
     </form>
     <a href="test.do?nom=Test&&poids=42">Test</a>

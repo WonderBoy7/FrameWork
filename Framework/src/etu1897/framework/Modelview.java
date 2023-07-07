@@ -5,6 +5,7 @@ import java.util.*;
 public class Modelview {
     String view;
     HashMap<String, Object> datas;
+    HashMap<String, Object> session;
 
     public Modelview (String view){
         this.view = view;
@@ -29,5 +30,11 @@ public class Modelview {
 
     public void setDatas(HashMap<String, Object> datas) {
         this.datas = datas;
+    }
+
+    public void setAttributeSession(String key, Object obj) {
+        if (key!= "" && obj != null) {
+            this.session.put(key, obj);
+        }
     }
 }

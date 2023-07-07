@@ -13,17 +13,19 @@ import java.util.*;
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> MappingUrls; 
+    HashMap<String, Object> sigleton; 
 
     @Override
     public void init() throws ServletException{
         this.MappingUrls = new HashMap<String, Mapping>();
+        this.sigleton = new HashMap<String, Object>();
         ServletContext context = getServletContext();
         String absolutePath = context.getRealPath("/WEB-INF/classes");
         File workspace = new File(absolutePath);
         String[] test=workspace.list();
         for (String packageName : test) {
             String packagePath = absolutePath+'\\'+packageName;
-            PackageClasse.checkMethod(packagePath,packageName, this.MappingUrls);
+            PackageClasse.initHashmap(packagePath,packageName, this.MappingUrls, sigleton);
         }
     }
     
@@ -50,13 +52,7 @@ public class FrontServlet extends HttpServlet {
         out.println("URL : "+url);
         out.println("MAPPING :"+this.MappingUrls.toString());
         out.println("Parameter url : "+parameter_url);
-        try {
-            //req.getPart("badge");
-        } catch (Exception e) {
-            out.println("NULL:"+e);
-        }
-        HashMap<String, Mapping> hashMap = this.MappingUrls;
-        Mapping mapping = hashMap.get(parameter_url);
+        Mapping mapping = this.MappingUrls.get(parameter_url);
         if (mapping != null) {
             out.println("Value of "+parameter_url+": ");
             out.println("\t ClassName : "+mapping.getClassName());
@@ -64,7 +60,9 @@ public class FrontServlet extends HttpServlet {
 
             try {
                 Class<?> cls = Class.forName(mapping.getClassName());
-                Object value = Util.invokeMethod(req, mapping);
+                Object obj = this.iniObject(cls, mapping, req);
+                Object value = Util.invokeMethod(req, mapping, obj);
+                
                 Modelview view = (Modelview) value;
                 this.setDatas(req, view);
                 req.getRequestDispatcher(view.getView()).forward(req, res);
@@ -87,5 +85,27 @@ public class FrontServlet extends HttpServlet {
             req.setAttribute(key, datas.get(key));
         }
     }
+
+    public Object iniObject(Class<?> cls, Mapping map, HttpServletRequest req) throws ServletException, Exception, NoSuchMethodException, IOException{
+        Object toReturn = null;
+        String key = cls.getName();
+        if (this.sigleton.containsKey(key)) {
+            System.out.println("the object is a sigleton");
+            if (this.sigleton.get(key) == null) {
+                toReturn = cls.getDeclaredConstructor().newInstance();
+                Util.setObjectField(toReturn, req);
+                this.sigleton.put(key, toReturn);
+                //System.out.println("the object is a sigleton(init)");
+            } else {
+                Util.resetObject(this.sigleton.get(cls.getName()));
+                toReturn = this.sigleton.get(key);
+                Util.setObjectField(toReturn, req);
+            }
+        } else {
+            toReturn = Util.initObjectForm(req, map);
+        }
+        return toReturn;
+    }
+
     
 }
