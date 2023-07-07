@@ -14,6 +14,8 @@
         <input type="submit" value="Valider">
     </form>
     <a href="test.do?nom=Test&&poids=42">Test</a>
+    <p><a href="login.do">Se Connecter</a></p>
+    <p><a href="admin.do">Page admin</a></p>
     
 </body>
 </html>

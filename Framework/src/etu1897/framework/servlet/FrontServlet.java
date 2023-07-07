@@ -7,16 +7,22 @@ import jakarta.servlet.annotation.MultipartConfig;
 import helper_classes.*;
 import etu1897.framework.*;
 import java.lang.reflect.Method;
-import java.sql.SQLException;
 import java.util.*;
+
+import annotation.Auth;
 
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> MappingUrls; 
-    HashMap<String, Object> sigleton; 
+    HashMap<String, Object> sigleton;
+    String sessionName;
+    String sessionProfil;
 
     @Override
     public void init() throws ServletException{
+        this.sessionName = getInitParameter("sessionName");
+        this.sessionProfil = getInitParameter("sessionProfil");
+        System.out.println("SessionName : "+this.sessionName+ " SessionProfil : "+this.sessionProfil);
         this.MappingUrls = new HashMap<String, Mapping>();
         this.sigleton = new HashMap<String, Object>();
         ServletContext context = getServletContext();
@@ -47,7 +53,7 @@ public class FrontServlet extends HttpServlet {
         PrintWriter out = res.getWriter();
         String url = String.valueOf(req.getRequestURL());
         String parameter_url = Util.getParamURL(url);
-        String method = req.getMethod();
+        //String method = req.getMethod();
 
         out.println("URL : "+url);
         out.println("MAPPING :"+this.MappingUrls.toString());
@@ -65,7 +71,19 @@ public class FrontServlet extends HttpServlet {
                 
                 Modelview view = (Modelview) value;
                 this.setDatas(req, view);
-                req.getRequestDispatcher(view.getView()).forward(req, res);
+                this.setSession(req, view.getSession());
+                displaySession(req);
+                if (checkAuth(mapping, req)) {
+                    if (checkProfil(req, stringMatching(cls.getDeclaredMethods(), mapping.getMethod()))) {
+                        System.out.println("profil : true");
+                        req.getRequestDispatcher(view.getView()).forward(req, res);
+                    } else {
+                        System.out.println("profil : false");
+                        returnToPage(req, res);
+                    }
+                } else {
+                    req.getRequestDispatcher(view.getView()).forward(req, res);
+                }
                 
                 /*if (value instanceof Modelview) {
                     Modelview myview = (Modelview) value;
@@ -79,10 +97,70 @@ public class FrontServlet extends HttpServlet {
         }
     }
 
+    public void displaySession(HttpServletRequest req) {
+        HttpSession session = req.getSession();
+        ArrayList<String> attribute = Collections.list(session.getAttributeNames());
+        for (String attr : attribute) {
+            System.out.println("================== Attribute : "+attr + " / Value : "+session.getAttribute(attr));
+        }
+        System.out.println("=========");
+        System.out.println();
+    }
+
+    public boolean checkAuth(Mapping map,HttpServletRequest req) throws Exception{
+        boolean toReturn = false;
+
+        Class<?> cls = Class.forName(map.getClassName());
+        Method meth = stringMatching(cls.getDeclaredMethods(), map.getMethod());
+        if (meth.isAnnotationPresent(Auth.class)) {
+            toReturn = true;
+        }
+        return toReturn;
+    }
+
+    public boolean checkProfil(HttpServletRequest req, Method meth) {
+        boolean toReturn = false;
+        HttpSession session = req.getSession();
+        if (session.getAttribute(this.sessionName) != null) {
+            String profil = meth.getAnnotation(Auth.class).profil();
+            System.out.println("PROFIL : "+profil);
+            if (profil.equals("simple_user")) {
+                toReturn = true;
+            } else {
+                String sessionprofil = session.getAttribute(this.sessionProfil).toString();
+                System.out.println("PROFIL IN SESSION : "+sessionprofil);
+                if (sessionprofil.equals(profil)) {
+                    toReturn = true;
+                } else {
+                    toReturn = false;
+                }
+            }
+        }
+        return toReturn;
+    }
+
+    public Method stringMatching(Method[] methods, String methodName) {
+        Method matching = null;
+        for (Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                matching = method;
+            }
+        }
+        return matching;
+    }
+
     public void setDatas(HttpServletRequest req, Modelview view) {
         HashMap<String, Object> datas = view.getDatas();
         for (String key : datas.keySet()) {
             req.setAttribute(key, datas.get(key));
+        }
+    }
+
+    public void setSession(HttpServletRequest req, HashMap<String, Object> session) throws Exception{
+        HttpSession httpSession = req.getSession();
+        for (String key : session.keySet()) {
+            System.out.println("////////////// SETTING SESSION");
+            httpSession.setAttribute(key, session.get(key));
         }
     }
 
@@ -105,6 +183,11 @@ public class FrontServlet extends HttpServlet {
             toReturn = Util.initObjectForm(req, map);
         }
         return toReturn;
+    }
+
+    public void returnToPage(HttpServletRequest req, HttpServletResponse res) throws IOException{
+        String referer = req.getHeader("Referer");
+        res.sendRedirect(referer);
     }
 
     

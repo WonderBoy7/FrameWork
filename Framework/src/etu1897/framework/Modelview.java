@@ -8,8 +8,9 @@ public class Modelview {
     HashMap<String, Object> session;
 
     public Modelview (String view){
-        this.view = view;
+        this.setView(view);
         datas = new HashMap<>();
+        session = new HashMap<>();
     }
 
     public void addItem(String key, Object item) {
@@ -21,6 +22,9 @@ public class Modelview {
         return view;
     }
     public void setView(String view) {
+        if (!view.contains(".jsp")) {
+            view += ".jsp";
+        }
         this.view = view;
     }
 
@@ -33,8 +37,12 @@ public class Modelview {
     }
 
     public void setAttributeSession(String key, Object obj) {
-        if (key!= "" && obj != null) {
-            this.session.put(key, obj);
-        }
+        this.session.put(key, obj);
     }
+
+    public HashMap<String, Object> getSession() {
+        return this.session;
+    }
+
+    
 }
