@@ -6,12 +6,14 @@ import java.util.*;
 import annotation.Url;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
+import jakarta.servlet.http.Part;
+import java.io.IOException;
 import java.lang.reflect.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class Util {
-    // exemple URL : http://localhost:8080/Spring1/doHttpProcess
+    // exemple URL : http://localhost:8080/Sprint1/doHttpProcess
     public static String getParamURL(String url) {
         String paramUrl = "";
         String domain = url.substring(url.indexOf("//")+2);
@@ -32,7 +34,7 @@ public class Util {
         Util.setArgValue(request, mapping, type, value);
 
         Object obj = Util.initObjectForm(request, mapping);
-
+        System.out.println("test =========");
         return (Modelview) obj.getClass().getMethod(mapping.getMethod(), type.toArray(Class[]::new)).invoke(obj, value.toArray(Object[]::new));
     }
 
@@ -60,22 +62,54 @@ public class Util {
         Object obj = clazz.getDeclaredConstructor().newInstance();
 
         Field[] allField = obj.getClass().getDeclaredFields();
-        String field_name,value;
+        String field_name;
+        Object value;
 
         for(Field f : allField) {
             field_name = f.getName();
-            value = request.getParameter(field_name);
-            if(value != null) {
+            if (f.getType().equals(FileUpload.class)) {
                 try {
-                    obj.getClass()
-                            .getMethod("set"+Util.capitalize(field_name), f.getType())
-                            .invoke(obj, Util.castPrimaryType(value, f.getType()));
-                } catch (ParseException e) {
+                    System.out.println(field_name);
+                    Part filePart = request.getPart(field_name);
+                    if (filePart == null) {
+                        System.out.println("null ilay part ==============");
+                    }
+                    value = Util.convertPart(filePart);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
+                }
+            } else {
+                value = request.getParameter(field_name);
+            }
+            if(value != null) {
+                if (value.getClass().equals(FileUpload.class)) {
+                    try {
+                        obj.getClass()
+                                .getMethod("set"+Util.capitalize(field_name), f.getType())
+                                .invoke(obj, value);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    try {
+                        obj.getClass()
+                                .getMethod("set"+Util.capitalize(field_name), f.getType())
+                                .invoke(obj, Util.castPrimaryType(value.toString(), f.getType()));
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+
                 }
             }
         }
         return obj;
+    }
+
+    public static FileUpload convertPart(Part filePart) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException , IOException, ParseException{
+        FileUpload file = new FileUpload();
+        file.setName(filePart.getSubmittedFileName());
+        file.setFile(filePart.getInputStream().readAllBytes());
+        return file;
     }
 
     public static Method getMethodByClassName(String className, String method) throws NoSuchMethodException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException {
