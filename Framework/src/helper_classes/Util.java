@@ -6,14 +6,14 @@ import java.util.*;
 import annotation.Url;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
-import jakarta.servlet.http.Part;
+
 import java.io.IOException;
 import java.lang.reflect.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class Util {
-    // exemple URL : http://localhost:8080/Sprint1/doHttpProcess
+    // exemple URL : http://localhost:8080/Spring1/doHttpProcess
     public static String getParamURL(String url) {
         String paramUrl = "";
         String domain = url.substring(url.indexOf("//")+2);
@@ -28,13 +28,13 @@ public class Util {
         return paramUrl;
     }
 
-    public static Modelview invokeMethod(HttpServletRequest request, Mapping mapping) throws Exception{
+    public static Modelview invokeMethod(HttpServletRequest request, Mapping mapping, Object obj) throws Exception{
         ArrayList<Class<?>> type = new ArrayList<>();
         ArrayList<Object> value = new ArrayList<>();
         Util.setArgValue(request, mapping, type, value);
 
-        Object obj = Util.initObjectForm(request, mapping);
-        System.out.println("test =========");
+        // Object obj = Util.initObjectForm(request, mapping);
+
         return (Modelview) obj.getClass().getMethod(mapping.getMethod(), type.toArray(Class[]::new)).invoke(obj, value.toArray(Object[]::new));
     }
 
@@ -57,10 +57,15 @@ public class Util {
         }
     }
 
-    public static Object initObjectForm(HttpServletRequest request, Mapping map) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
-        Class<?> clazz = Class.forName(map.getClassName());
-        Object obj = clazz.getDeclaredConstructor().newInstance();
+    public static Object initObjectForm(HttpServletRequest request, Mapping map) throws Exception,ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+        Class<?> myclass = Class.forName(map.getClassName());
+        Object obj = myclass.getDeclaredConstructor().newInstance();
 
+        setObjectField(obj, request);
+        return obj;
+    }
+
+    public static void setObjectField(Object obj, HttpServletRequest request) throws Exception{
         Field[] allField = obj.getClass().getDeclaredFields();
         String field_name;
         Object value;
@@ -69,14 +74,15 @@ public class Util {
             field_name = f.getName();
             if (f.getType().equals(FileUpload.class)) {
                 try {
-                    System.out.println(field_name);
+                    //System.out.println(field_name);
                     Part filePart = request.getPart(field_name);
-                    if (filePart == null) {
-                        System.out.println("null ilay part ==============");
+                    if (filePart != null) {
+                        value = Util.convertPart(filePart);
+                    } else {
+                        value = null;
                     }
-                    value = Util.convertPart(filePart);
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    value = null;
                 }
             } else {
                 value = request.getParameter(field_name);
@@ -102,8 +108,35 @@ public class Util {
                 }
             }
         }
-        return obj;
     }
+
+    public static void resetObject(Object obj) throws Exception{
+        Field[] fields = obj.getClass().getDeclaredFields();
+        String field_name;
+        Object value;
+
+        for(Field f : fields) {
+            field_name = f.getName();
+            if (f.getType().equals(int.class)||f.getType().equals(double.class)||f.getType().equals(float.class)) {
+                try {
+                    value = 0;
+                } catch (Exception e) {
+                    throw new Exception(e);
+                }
+            } else {
+                value = null;
+            }
+
+            try {
+                obj.getClass().getMethod("set"+Util.capitalize(field_name), f.getType()).invoke(obj, value);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
+
 
     public static FileUpload convertPart(Part filePart) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException , IOException, ParseException{
         FileUpload file = new FileUpload();

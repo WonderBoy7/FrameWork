@@ -63,8 +63,8 @@ public class PackageClasse {
         return className;
     }
 
-    public static void checkMethod(String packagePath,String packageName, HashMap<String, Mapping> map){
-        System.out.println("\nPackage name : "+packagePath);
+    public static void initHashmap(String packagePath,String packageName, HashMap<String, Mapping> map, HashMap<String, Object> sigleton){
+        System.out.println("Package name : "+packagePath);
             File[] files = getFileInPackage(packagePath);
 
             // Obtenez toutes les classes de ce package
@@ -73,6 +73,18 @@ public class PackageClasse {
                     String className = getClassName(file);
                     Class<?> cls = Class.forName(className);
                     System.out.println("\tclasses = "+cls.getCanonicalName());
+                    if (cls.isAnnotationPresent(Scope.class)) {
+                        //Annotation scope = cls.getDeclaredAnnotation(Scope.class);
+                        System.out.println("sigleton checking");
+                        
+                        //String type = (String) scope.getClass().getDeclaredMethod("types").invoke(scope);
+                        String type = cls.getAnnotation(Scope.class).types().toString();
+                        System.out.println("\t type: "+type);
+                        if (type.equals("singleton")) {
+                            System.out.println("Class "+cls.getSimpleName()+" is sigleton");
+                            sigleton.put(cls.getName(),null);
+                        }
+                    }
                     if (!Modifier.isAbstract(cls.getModifiers())) {
                         // Obtenez toutes les méthodes de cette classe
                         Method[] methods = cls.getDeclaredMethods();
@@ -82,12 +94,13 @@ public class PackageClasse {
                                 String key = (String) annotation.getClass().getDeclaredMethod("value").invoke(annotation);
                                 System.out.println("c'est la mort !!! "+className+" , "+method.getName());
                                 map.put(key, new Mapping(className, method.getName()));
+                                
                             }
                         }
                     }
                 } catch (Exception e) {
                     //out.println("Error: " + e.getMessage());
-                    System.err.println("Error :" + e);
+                    System.out.println("Error :" + e);
                 }
                 
             }

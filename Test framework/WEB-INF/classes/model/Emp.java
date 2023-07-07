@@ -2,9 +2,11 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
-import annotation.*;
 import etu1897.framework.*;
+import annotation.Scope;
+import annotation.Url;
 
+@Scope(types = "singleton")
 public class Emp {
     int id;
 
@@ -48,7 +50,6 @@ public class Emp {
         mv.addItem("poids", poids);
         return mv;
     }
-
     
     public int getId() {
         return id;
