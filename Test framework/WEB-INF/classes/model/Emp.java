@@ -10,6 +10,8 @@ public class Emp {
 
     String name;
 
+    FileUpload badge;
+
     public Emp () {
 
     }
@@ -63,5 +65,14 @@ public class Emp {
     public void setName(String name) {
         this.name = name;
     }
+
+    public FileUpload getBadge() {
+        return badge;
+    }
+
+    public void setBadge(FileUpload badge) {
+        this.badge = badge;
+    }
+    
     
 }

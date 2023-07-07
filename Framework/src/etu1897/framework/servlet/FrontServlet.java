@@ -3,12 +3,14 @@ package etu1897.framework.servlet;
 import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import helper_classes.*;
 import etu1897.framework.*;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.*;
 
+@MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> MappingUrls; 
 
@@ -48,6 +50,11 @@ public class FrontServlet extends HttpServlet {
         out.println("URL : "+url);
         out.println("MAPPING :"+this.MappingUrls.toString());
         out.println("Parameter url : "+parameter_url);
+        try {
+            //req.getPart("badge");
+        } catch (Exception e) {
+            out.println("NULL:"+e);
+        }
         HashMap<String, Mapping> hashMap = this.MappingUrls;
         Mapping mapping = hashMap.get(parameter_url);
         if (mapping != null) {
