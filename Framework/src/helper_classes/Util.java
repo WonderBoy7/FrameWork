@@ -29,6 +29,7 @@ public class Util {
     public static Modelview invokeMethod(HttpServletRequest request, Mapping mapping) throws Exception{
         ArrayList<Class<?>> type = new ArrayList<>();
         ArrayList<Object> value = new ArrayList<>();
+        Util.setArgValue(request, mapping, type, value);
 
         Object obj = Util.initObjectForm(request, mapping);
 
@@ -38,7 +39,7 @@ public class Util {
     public static void setArgValue(HttpServletRequest request, Mapping mapping, ArrayList<Class<?>> type, ArrayList<Object> value) throws Exception {
         Method m = Util.getMethodByClassName(mapping.getClassName(), mapping.getMethod());
 
-        if(m.isAnnotationPresent(Url.class) ) {
+        if(m.isAnnotationPresent(Url.class)  && !m.getAnnotation(Url.class).param_name().equals("") ) {
             type.addAll(List.of(m.getParameterTypes()));
 
             String[] paramName = m.getAnnotation(Url.class).param_name().split(",");
@@ -49,7 +50,7 @@ public class Util {
             String value_temp;
             for (int i=0; i< paramName.length; i++) {
                 value_temp = request.getParameter(paramName[i].trim());
-                //value.add(Util.castPrimaryType(value_temp, type.get(i)));
+                value.add(Util.castPrimaryType(value_temp, type.get(i)));
             }
         }
     }

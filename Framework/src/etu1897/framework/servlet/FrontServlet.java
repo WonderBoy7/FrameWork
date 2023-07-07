@@ -58,18 +58,16 @@ public class FrontServlet extends HttpServlet {
             try {
                 Class<?> cls = Class.forName(mapping.getClassName());
                 Object value = Util.invokeMethod(req, mapping);
-                if (value instanceof Modelview) {
-                    Modelview view = (Modelview) value;
-                    this.setDatas(req, view);
-
-                    req.getRequestDispatcher(view.getView()).forward(req, res);
-                }
+                Modelview view = (Modelview) value;
+                this.setDatas(req, view);
+                req.getRequestDispatcher(view.getView()).forward(req, res);
+                
                 /*if (value instanceof Modelview) {
                     Modelview myview = (Modelview) value;
                     req.getRequestDispatcher(myview.getView()).forward(req,res);
                 }*/
             } catch (Exception e) {
-                throw new ServletException(e);
+                out.println(e);
             }
         } else {
             out.println("The url `"+parameter_url+"` is not defined");
