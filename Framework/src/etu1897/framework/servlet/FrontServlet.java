@@ -4,8 +4,8 @@ import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import helper_classes.*;
+import etu1897.framework.Mapping;
 import java.util.*;
-import etu1897.framework.*;
 
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> MappingUrls; 
@@ -40,11 +40,10 @@ public class FrontServlet extends HttpServlet {
     protected void processRequest (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         PrintWriter out = res.getWriter();
         String url = String.valueOf(req.getRequestURL());
+        String parameter_url = Util.getParamURL(url);
         out.println("URL : "+url);
-        out.println("Parameter url : "+Util.getParamURL(url));
         out.println("MAPPING :"+this.MappingUrls.toString());
-        HashMap<String, Mapping> test = this.MappingUrls;
-        out.println(test.get("test2"));
+        out.println("Parameter url : "+parameter_url);
     }
     
 }
