@@ -5,9 +5,7 @@ import java.util.List;
 import annotation.*;
 import etu1897.framework.*;
 
-@Model(table = "test")
 public class Emp {
-    @Field(name = "empId")
     int id;
 
     String name;
@@ -34,10 +32,18 @@ public class Emp {
         return mv;
     }
     @Url(value = "save.do")
-    public Modelview Save(){
+    public Modelview save(){
         Modelview mv = new Modelview("result.jsp");
         mv.addItem("my_object", this);
         
+        return mv;
+    }
+
+    @Url(value = "test.do", param_name = "nom,poids")
+    public Modelview test(String nom, double poids) {
+        Modelview mv = new Modelview("result_arg.jsp");
+        mv.addItem("nom", nom);
+        mv.addItem("poids", poids);
         return mv;
     }
 

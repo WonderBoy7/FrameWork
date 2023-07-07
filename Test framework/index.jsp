@@ -8,10 +8,11 @@
 </head>
 <body>
     <form action="save.do" method="post">
-        <h3>Formulaire attribut de classe</h3>
         <input type="number" name="id" id="">
         <input type="text" name="name" id="">
         <input type="submit" value="Valider">
     </form>
+    <a href="test.do?nom=Test&&poids=42">Test</a>
+    
 </body>
 </html>
