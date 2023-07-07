@@ -3,6 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 import etu1897.framework.*;
+import annotation.Auth;
 import annotation.Scope;
 import annotation.Url;
 
@@ -48,6 +49,31 @@ public class Emp {
         Modelview mv = new Modelview("result_arg.jsp");
         mv.addItem("nom", nom);
         mv.addItem("poids", poids);
+        return mv;
+    }
+
+    @Url(value = "login.do")
+    public Modelview login() {
+        Modelview mv = new Modelview("login.jsp");
+        return mv;
+    }
+
+    @Url(value = "connect.do", param_name = "user,mdp")
+    public Modelview connect(String user, String mdp){
+        Modelview mv = new Modelview("connect.jsp");
+        if (user.equals("admin")&& mdp.equals("useradmin")) {
+            mv.setAttributeSession("isConnected", true);
+            mv.setAttributeSession("profil", "admin");
+        } else {
+            mv.setView("error.jsp");
+        }
+        return mv;
+    }
+
+    @Auth(profil = "admin")
+    @Url(value = "admin.do")
+    public Modelview admin() {
+        Modelview mv = new Modelview("admin.jsp");
         return mv;
     }
     

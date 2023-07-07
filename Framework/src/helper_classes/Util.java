@@ -4,7 +4,6 @@ import etu1897.framework.*;
 import java.util.*;
 
 import annotation.Url;
-import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ public class Util {
         ArrayList<Class<?>> type = new ArrayList<>();
         ArrayList<Object> value = new ArrayList<>();
         Util.setArgValue(request, mapping, type, value);
-
+        
         // Object obj = Util.initObjectForm(request, mapping);
 
         return (Modelview) obj.getClass().getMethod(mapping.getMethod(), type.toArray(Class[]::new)).invoke(obj, value.toArray(Object[]::new));
