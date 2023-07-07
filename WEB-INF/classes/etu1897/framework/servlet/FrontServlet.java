@@ -4,8 +4,12 @@ import java.io.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import helper_classes.*;
+import java.util.*;
+import etu1897.framework.*;
 
 public class FrontServlet extends HttpServlet {
+    HashMap<String, Mapping> MappingUrls; 
+
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out = response.getWriter();
         if (request.getMethod().equals("GET")) {
